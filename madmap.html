@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MadMaps</title>
-    <script src="./dist/main.js"></script>
+    <script type="text/javascript" src="./dist/main.js"></script>
     <link rel="stylesheet"
       integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
       href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
@@ -14,6 +14,11 @@
   </head>
   <body>
     Madison
+    <select>
+      <option value="Overview">Overview</option>
+      <option value="Bikers">Bikers</option>
+      <option value="Transit Commuters">Transit Commuters</option>
+    </select>
     <div id="madison" style="height:600px"></div>
   </body>
 </html>
