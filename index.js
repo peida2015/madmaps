@@ -16,15 +16,21 @@ function getReq(url, successHandler) {
 
 document.onreadystatechange = function() {
   if (document.readyState === "complete") {
-    document.getElementsByTagName('select').item(0).onchange = function (e) {
-      console.log(e.currentTarget.value);
-      switch(e.currentTarget.value) {
-        case "Overview":
-        case "Bikers":
+    var selectMap = function (mapName) {
+      console.log(mapName);
+      switch(mapName) {
+        case "Overview": overview();
+        break;
+        case "Bikers": bikers();
+        break;
         case "Transit Commuters":
 
       }
-    }
+    };
+
+    document.getElementsByTagName('select').item(0).onchange = function (e) {
+      selectMap(e.currentTarget.value);
+    };
 
     // Setup leaflet map with Madison as center and select tile provider.
     var madison = L.map('madison').setView([43.073, -89.40], 13);
@@ -36,7 +42,11 @@ document.onreadystatechange = function() {
       function drawOverviewMap(respText) {
         var neighborhoods = JSON.parse(respText);
 
-        L.geoJSON(neighborhoods, {
+        if (currentMap.name !== "Overview" && currentMap.layer !== null) {
+          currentMap.layer.remove();
+        }
+
+        var neighborhoodsLayer = L.geoJSON(neighborhoods, {
           style: {
             color: "green",
             weight: 2,
@@ -50,7 +60,12 @@ document.onreadystatechange = function() {
               direction: "center"
             });
           }
-        }).addTo(madison);
+        })
+
+        neighborhoodsLayer.addTo(madison);
+
+        currentMap.name = "Overview";
+        currentMap.layer = neighborhoodsLayer;
       }
 
       getReq(neighborhoodsUrl, drawOverviewMap);
@@ -60,9 +75,13 @@ document.onreadystatechange = function() {
     var bikers =  function () {
       var bikePathsUrl = "https://opendata.arcgis.com/datasets/eea6d3fb4ca64f8199d9e1482ff45ae2_11.geojson";
 
+      if (currentMap.name !== "Bikers" && currentMap.layer !== null) {
+        currentMap.layer.remove();
+      };
+
       function drawBikePaths(respText) {
         var bikePaths = JSON.parse(respText);
-        L.geoJSON(bikePaths, {
+        var bikePathsLayer = L.geoJSON(bikePaths, {
           style: function (feature, layer){
             // Show bike paths' widths, with default of 8 for null values
             return {
@@ -74,14 +93,24 @@ document.onreadystatechange = function() {
           onEachFeature: function (feature, layer) {
             layer.bindTooltip(String(feature.properties.BikePaWdth)).addTo(madison);
           }
-        }).addTo(madison);
+        });
+
+        bikePathsLayer.addTo(madison);
+
+        currentMap.name = "Bikers";
+        currentMap.layer = bikePathsLayer;
       }
 
       getReq(bikePathsUrl, drawBikePaths);
     };
 
     // Default map
-    bikers();
+    var currentMap = {
+      layer: null,
+      name: null
+    };
+
+    selectMap(document.getElementsByTagName('select').item(0).value);
   }
 
 
