@@ -102,14 +102,33 @@ document.onreadystatechange = function() {
       }
 
       getReq(bikePathsUrl, drawBikePaths);
+
+      // draw bike share stations
+      var bikeStationsUrl = "https://opendata.arcgis.com/datasets/ce3fbee2fc894d3bbd2009be8247229a_9.geojson";
+
+      function drawBikeStations (respText) {
+        var bikeStations = JSON.parse(respText);
+
+        var bikeStationsMarkers = bikeStations.features.map(function (station) {
+            var coor = station.geometry.coordinates;
+            return L.marker([coor[1], coor[0]]);
+        })
+
+        var layerGroup = L.layerGroup(bikeStationsMarkers)
+        layerGroup.addTo(madison);
+      }
+
+      getReq(bikeStationsUrl, drawBikeStations);
+
     };
 
-    // Default map
+    // Use currentMap to keep track of map layer displayed
     var currentMap = {
       layer: null,
       name: null
     };
 
+    // Initialize map based on the default value of the map selection drop down menu
     selectMap(document.getElementsByTagName('select').item(0).value);
   }
 
