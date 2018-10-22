@@ -115,9 +115,12 @@ document.onreadystatechange = function() {
           iconSize: [30, 30]
         });
 
+        console.log(bikeStations.features);
+
         var bikeStationsMarkers = bikeStations.features.map(function (station) {
             var coor = station.geometry.coordinates;
-            return L.marker([coor[1], coor[0]], { icon: icon });
+            return L.marker([coor[1], coor[0]], { icon: icon })
+                .bindTooltip("<div><strong style='color: green'>" + station.properties.Name + "</strong></div><div>" + station.properties.Location + "</div>");
         })
 
         var layerGroup = L.layerGroup(bikeStationsMarkers)
