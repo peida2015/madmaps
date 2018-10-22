@@ -109,9 +109,15 @@ document.onreadystatechange = function() {
       function drawBikeStations (respText) {
         var bikeStations = JSON.parse(respText);
 
+        // Configure icon to represent a bike station
+        var icon = L.icon({
+          iconUrl: "http://www.universitybikeprograms.org/wp-content/uploads/2015/05/i405_TDM_icon_bike99992.gif",
+          iconSize: [30, 30]
+        });
+
         var bikeStationsMarkers = bikeStations.features.map(function (station) {
             var coor = station.geometry.coordinates;
-            return L.marker([coor[1], coor[0]]);
+            return L.marker([coor[1], coor[0]], { icon: icon });
         })
 
         var layerGroup = L.layerGroup(bikeStationsMarkers)
