@@ -43,7 +43,7 @@ document.onreadystatechange = function() {
         var neighborhoods = JSON.parse(respText);
 
         if (currentMap.name !== "Overview" && currentMap.layer !== null) {
-          currentMap.layer.remove();
+          currentMap.layer.forEach((layer) => layer.remove());
         }
 
         var neighborhoodsLayer = L.geoJSON(neighborhoods, {
@@ -65,7 +65,7 @@ document.onreadystatechange = function() {
         neighborhoodsLayer.addTo(madison);
 
         currentMap.name = "Overview";
-        currentMap.layer = neighborhoodsLayer;
+        currentMap.layer = [neighborhoodsLayer];
       }
 
       getReq(neighborhoodsUrl, drawOverviewMap);
@@ -73,14 +73,60 @@ document.onreadystatechange = function() {
     };
 
     var bikers =  function () {
+      // URLs for data
       var bikePathsUrl = "https://opendata.arcgis.com/datasets/eea6d3fb4ca64f8199d9e1482ff45ae2_11.geojson";
 
+      var stationInfoUrl = "https://gbfs.bcycle.com/bcycle_madison/station_information.json";
+
+      var stationStatusUrl = "https://gbfs.bcycle.com/bcycle_madison/station_status.json";
+
+
       if (currentMap.name !== "Bikers" && currentMap.layer !== null) {
-        currentMap.layer.remove();
+        currentMap.layer.forEach(layer => layer.remove());
       };
 
-      function drawBikePaths(respText) {
-        var bikePaths = JSON.parse(respText);
+      // Promises to asynchronously retrieve data
+      var getStationInfo = new Promise(function(resolve) {
+        getReq(stationInfoUrl, function (respText) {
+          resolve(JSON.parse(respText));
+        })
+      });
+
+      var getStationStatus = new Promise(function(resolve) {
+        getReq(stationStatusUrl, function (respText) {
+          resolve(JSON.parse(respText));
+        })
+      });
+
+      var getBikePaths = new Promise(function(resolve) {
+        getReq(bikePathsUrl, function(respText){
+          resolve(JSON.parse(respText))
+        });
+      });
+
+      Promise.all([getStationInfo, getStationStatus, getBikePaths]) .then(function(stationAndPathData){
+
+        // Draw bike share stations
+        var info = stationAndPathData[0].data.stations;
+        var status = stationAndPathData[1].data.stations;
+
+        // Configure icon to represent a bike station
+        var icon = L.icon({
+          iconUrl: "http://www.universitybikeprograms.org/wp-content/uploads/2015/05/i405_TDM_icon_bike99992.gif",
+          iconSize: [30, 30]
+        });
+
+        var bikeStationsMarkers = info.map(function (station, idx) {
+            return L.marker([station.lat, station.lon], { icon: icon })
+                .bindTooltip("<div><strong style='color: green'>" + "BCycle" + "</strong></div><div>" + station.address + "</div>" + "<br><div style='margin-right: 10px'>Bikes for rent: <b>" + status[idx].num_bikes_available + "</b></div><div>Free Docks: <b>" + status[idx].num_docks_available + "</b></div>" );
+        })
+
+        var stationsMarkersLayer = L.layerGroup(bikeStationsMarkers);
+        stationsMarkersLayer.addTo(madison);
+
+        // Draw bike paths
+        var bikePaths = stationAndPathData[2];
+
         var bikePathsLayer = L.geoJSON(bikePaths, {
           style: function (feature, layer){
             // Show bike paths' widths, with default of 8 for null values
@@ -94,46 +140,11 @@ document.onreadystatechange = function() {
             layer.bindTooltip(String(feature.properties.BikePaWdth)).addTo(madison);
           }
         });
-
         bikePathsLayer.addTo(madison);
 
+        // reflect changes in currentMap
         currentMap.name = "Bikers";
-        currentMap.layer = bikePathsLayer;
-      }
-
-      getReq(bikePathsUrl, drawBikePaths);
-
-      // draw bike share stations
-
-      var getStationInfo = new Promise(function(resolve) {
-        getReq("https://gbfs.bcycle.com/bcycle_madison/station_information.json", function (respText) {
-          resolve(JSON.parse(respText));
-        })
-      });
-
-      var getStationStatus = new Promise(function(resolve) {
-        getReq("https://gbfs.bcycle.com/bcycle_madison/station_status.json", function (respText) {
-          resolve(JSON.parse(respText));
-        })
-      });
-
-      Promise.all([getStationInfo, getStationStatus]).then(function(stationData){
-        var info = stationData[0].data.stations;
-        var status = stationData[1].data.stations;
-
-        // Configure icon to represent a bike station
-        var icon = L.icon({
-          iconUrl: "http://www.universitybikeprograms.org/wp-content/uploads/2015/05/i405_TDM_icon_bike99992.gif",
-          iconSize: [30, 30]
-        });
-
-        var bikeStationsMarkers = info.map(function (station, idx) {
-            return L.marker([station.lat, station.lon], { icon: icon })
-                .bindTooltip("<div><strong style='color: green'>" + "BCycle" + "</strong></div><div>" + station.address + "</div>" + "<br><div style='margin-right: 10px'>Bikes for rent: <b>" + status[idx].num_bikes_available + "</b></div><div>Free Docks: <b>" + status[idx].num_docks_available + "</b></div>" );
-        })
-
-        var layerGroup = L.layerGroup(bikeStationsMarkers)
-        layerGroup.addTo(madison);
+        currentMap.layer = [bikePathsLayer, stationsMarkersLayer];
       })
 
 
