@@ -104,10 +104,22 @@ document.onreadystatechange = function() {
       getReq(bikePathsUrl, drawBikePaths);
 
       // draw bike share stations
-      var bikeStationsUrl = "https://opendata.arcgis.com/datasets/ce3fbee2fc894d3bbd2009be8247229a_9.geojson";
 
-      function drawBikeStations (respText) {
-        var bikeStations = JSON.parse(respText);
+      var getStationInfo = new Promise(function(resolve) {
+        getReq("https://gbfs.bcycle.com/bcycle_madison/station_information.json", function (respText) {
+          resolve(JSON.parse(respText));
+        })
+      });
+
+      var getStationStatus = new Promise(function(resolve) {
+        getReq("https://gbfs.bcycle.com/bcycle_madison/station_status.json", function (respText) {
+          resolve(JSON.parse(respText));
+        })
+      });
+
+      Promise.all([getStationInfo, getStationStatus]).then(function(stationData){
+        var info = stationData[0].data.stations;
+        var status = stationData[1].data.stations;
 
         // Configure icon to represent a bike station
         var icon = L.icon({
@@ -115,19 +127,15 @@ document.onreadystatechange = function() {
           iconSize: [30, 30]
         });
 
-        console.log(bikeStations.features);
-
-        var bikeStationsMarkers = bikeStations.features.map(function (station) {
-            var coor = station.geometry.coordinates;
-            return L.marker([coor[1], coor[0]], { icon: icon })
-                .bindTooltip("<div><strong style='color: green'>" + station.properties.Name + "</strong></div><div>" + station.properties.Location + "</div>");
+        var bikeStationsMarkers = info.map(function (station, idx) {
+            return L.marker([station.lat, station.lon], { icon: icon })
+                .bindTooltip("<div><strong style='color: green'>" + "BCycle" + "</strong></div><div>" + station.address + "</div>" + "<br><div style='margin-right: 10px'>Bikes for rent: <b>" + status[idx].num_bikes_available + "</b></div><div>Free Docks: <b>" + status[idx].num_docks_available + "</b></div>" );
         })
 
         var layerGroup = L.layerGroup(bikeStationsMarkers)
         layerGroup.addTo(madison);
-      }
+      })
 
-      getReq(bikeStationsUrl, drawBikeStations);
 
     };
 
