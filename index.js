@@ -23,7 +23,8 @@ document.onreadystatechange = function() {
         break;
         case "Bikers": bikers();
         break;
-        case "Transit Commuters":
+        case "Transit Commuters": commuters()
+        break;
 
       }
     };
@@ -73,17 +74,17 @@ document.onreadystatechange = function() {
     };
 
     var bikers =  function () {
+      // Remove current map's layer
+      if (currentMap.name !== "Bikers" && currentMap.layer !== null) {
+        currentMap.layer.forEach(layer => layer.remove());
+      };
+
       // URLs for data
       var bikePathsUrl = "https://opendata.arcgis.com/datasets/eea6d3fb4ca64f8199d9e1482ff45ae2_11.geojson";
 
       var stationInfoUrl = "https://gbfs.bcycle.com/bcycle_madison/station_information.json";
 
       var stationStatusUrl = "https://gbfs.bcycle.com/bcycle_madison/station_status.json";
-
-
-      if (currentMap.name !== "Bikers" && currentMap.layer !== null) {
-        currentMap.layer.forEach(layer => layer.remove());
-      };
 
       // Promises to asynchronously retrieve data
       var getStationInfo = new Promise(function(resolve) {
@@ -149,6 +150,48 @@ document.onreadystatechange = function() {
 
 
     };
+
+    var commuters = function () {
+      // Remove current map's layer
+      if (currentMap.name !== "Transit Commuters" && currentMap.layer !== null) {
+        currentMap.layer.forEach(layer => layer.remove());
+      };
+      
+      // URLs for data
+      var busStopsUrl = "https://opendata.arcgis.com/datasets/58d6ef381b594afbb06862dc51480aa1_3.geojson";
+
+      // Promises to retrieve data
+
+      var getBusStops = new Promise(function (resolve) {
+        getReq(busStopsUrl, respText => {
+          resolve(JSON.parse(respText));
+        })
+      });
+
+      Promise.all([getBusStops]).then(busData => {
+
+        var stops = busData[0].features;
+
+        var busStopIcon = L.icon({
+          iconUrl: "https://image.flaticon.com/icons/svg/0/622.svg",
+          iconSize: [30, 30]
+        });
+
+        var stopsMarkers = stops.map(function (stop) {
+          const coords = stop.geometry.coordinates;
+          return L.marker([coords[1], coords[0]],
+                          { icon: busStopIcon });
+        });
+        // debugger
+        var stopsLayer = L.layerGroup(stopsMarkers);
+
+        stopsLayer.addTo(madison);
+
+        currentMap.name = "Transit Commuters";
+        currentMap.layer = [stopsLayer];
+      })
+    }
+
 
     // Use currentMap to keep track of map layer displayed
     var currentMap = {
