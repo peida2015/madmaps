@@ -156,7 +156,7 @@ document.onreadystatechange = function() {
       if (currentMap.name !== "Transit Commuters" && currentMap.layer !== null) {
         currentMap.layer.forEach(layer => layer.remove());
       };
-      
+
       // URLs for data
       var busStopsUrl = "https://opendata.arcgis.com/datasets/58d6ef381b594afbb06862dc51480aa1_3.geojson";
 
@@ -173,14 +173,15 @@ document.onreadystatechange = function() {
         var stops = busData[0].features;
 
         var busStopIcon = L.icon({
-          iconUrl: "https://image.flaticon.com/icons/svg/0/622.svg",
+          iconUrl: "./images/icon.svg",
           iconSize: [30, 30]
         });
 
         var stopsMarkers = stops.map(function (stop) {
           const coords = stop.geometry.coordinates;
           return L.marker([coords[1], coords[0]],
-                          { icon: busStopIcon });
+                          { icon: busStopIcon })
+                          ;
         });
         // debugger
         var stopsLayer = L.layerGroup(stopsMarkers);
