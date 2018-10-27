@@ -181,7 +181,7 @@ document.onreadystatechange = function() {
           const coords = stop.geometry.coordinates;
           return L.marker([coords[1], coords[0]],
                           { icon: busStopIcon })
-                          ;
+              .bindTooltip("<div><strong>" + stop.properties.stop_name + "</strong></div><div>ID: " + stop.properties.stop_code + "</div><div>Route: <strong>" + stop.properties.Route + "</strong></div>");
         });
         // debugger
         var stopsLayer = L.layerGroup(stopsMarkers);
