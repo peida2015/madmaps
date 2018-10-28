@@ -37,6 +37,7 @@ document.onreadystatechange = function() {
     var madison = L.map('madison').setView([43.073, -89.40], 13);
     L.tileLayer.provider('Stamen.Watercolor').addTo(madison);
 
+
     var overview = function () {
       var neighborhoodsUrl = "https://opendata.arcgis.com/datasets/66e4a6a80ae64865a81bc8d4464a6417_12.geojson";
 
@@ -160,6 +161,8 @@ document.onreadystatechange = function() {
       // URLs for data
       var busStopsUrl = "https://opendata.arcgis.com/datasets/58d6ef381b594afbb06862dc51480aa1_3.geojson";
 
+      var busRoutesUrl = "https://opendata.arcgis.com/datasets/b6c6c86f30bb44d8be06b339aabaa8f5_18.geojson";
+
       // Promises to retrieve data
 
       var getBusStops = new Promise(function (resolve) {
@@ -168,10 +171,18 @@ document.onreadystatechange = function() {
         })
       });
 
-      Promise.all([getBusStops]).then(busData => {
+      var getBusRoutes = new Promise(function (resolve) {
+        getReq(busRoutesUrl, respText => {
+          resolve(JSON.parse(respText));
+        })
+      });
+
+      Promise.all([getBusStops, getBusRoutes]).then(busData => {
 
         var stops = busData[0].features;
+        var routes = busData[1].features;
 
+        // Plot bus stops with custom icons
         var busStopIcon = L.icon({
           iconUrl: "./images/icon.svg",
           iconSize: [30, 30]
@@ -183,13 +194,17 @@ document.onreadystatechange = function() {
                           { icon: busStopIcon })
               .bindTooltip("<div><strong>" + stop.properties.stop_name + "</strong></div><div>ID: " + stop.properties.stop_code + "</div><div>Route: <strong>" + stop.properties.Route + "</strong></div>");
         });
-        // debugger
+
         var stopsLayer = L.layerGroup(stopsMarkers);
 
         stopsLayer.addTo(madison);
 
+        // Draw bus routes
+        var routesLayer = L.geoJSON(routes);
+        routesLayer.addTo(madison);
+
         currentMap.name = "Transit Commuters";
-        currentMap.layer = [stopsLayer];
+        currentMap.layer = [stopsLayer, routesLayer];
       })
     }
 
