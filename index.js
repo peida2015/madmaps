@@ -185,7 +185,7 @@ document.onreadystatechange = function() {
         // Plot bus stops with custom icons
         var busStopIcon = L.icon({
           iconUrl: "./images/icon.svg",
-          iconSize: [30, 30]
+          iconSize: [20, 20]
         });
 
         var stopsMarkers = stops.map(function (stop) {
@@ -200,7 +200,13 @@ document.onreadystatechange = function() {
         stopsLayer.addTo(madison);
 
         // Draw bus routes
-        var routesLayer = L.geoJSON(routes);
+        var routesLayer = L.geoJSON(routes, {
+          onEachFeature: function (feature, layer) {
+            layer.on('mouseover', function() {
+              console.log(feature);
+            })
+          }
+        });
         routesLayer.addTo(madison);
 
         currentMap.name = "Transit Commuters";
