@@ -182,6 +182,19 @@ document.onreadystatechange = function() {
         var stops = busData[0].features;
         var routes = busData[1].features;
 
+        // Separate stops by routes
+        var stopsByRoutes = {};
+        stops.forEach(function(stop) {
+          let routes = stop.properties.Route.split(", ");
+          routes.forEach((route) => {
+            if (stopsByRoutes[route] === undefined) {
+              stopsByRoutes[route] = [];
+            }
+
+            stopsByRoutes[route].push(stop.properties.stop_id);
+          })
+        });
+
         // Plot bus stops with custom icons
         var busStopIcon = L.icon({
           iconUrl: "./images/icon.svg",
