@@ -225,20 +225,22 @@ document.onreadystatechange = function() {
         // Draw bus routes
         var routesLayer = L.geoJSON(routes, {
           onEachFeature: function (feature, layer) {
-            layer.on('mouseover', function() {
-              // Remove stops and add stops along selectedRoute
-              currentMap.layer[0].remove();
+            layer.on('click', function () {
+              if (selectedRoute !== feature.properties.route_short_name) {
+                currentMap.layer[0].remove();
 
-              currentMap.layer[0] = L.layerGroup(stopsByRoutes[feature.properties.route_short_name]);
-              currentMap.layer[0].addTo(madison);
+                currentMap.layer[0] = L.layerGroup(stopsByRoutes[feature.properties.route_short_name]);
+                currentMap.layer[0].addTo(madison);
 
-            });
+                selectedRoute = feature.properties.route_short_name;
+              } else {
+                currentMap.layer[0].remove();
 
-            layer.on('mouseout', function () {
-              currentMap.layer[0].remove();
+                currentMap.layer[0] = L.layerGroup(stopsByRoutes["all"]);
+                currentMap.layer[0].addTo(madison);
 
-              currentMap.layer[0] = L.layerGroup(stopsByRoutes["all"]);
-              currentMap.layer[0].addTo(madison);
+                selectedRoute = null;
+              }
             })
           }
         });
