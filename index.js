@@ -184,16 +184,9 @@ document.onreadystatechange = function() {
 
         // Separate stops by routes
         var stopsByRoutes = {};
-        stops.forEach(function(stop) {
-          let routes = stop.properties.Route.split(", ");
-          routes.forEach((route) => {
-            if (stopsByRoutes[route] === undefined) {
-              stopsByRoutes[route] = [];
-            }
 
-            stopsByRoutes[route].push(stop.properties.stop_id);
-          })
-        });
+
+        var selectedRoute = null;
 
         // Plot bus stops with custom icons
         var busStopIcon = L.icon({
@@ -201,12 +194,29 @@ document.onreadystatechange = function() {
           iconSize: [20, 20]
         });
 
+
         var stopsMarkers = stops.map(function (stop) {
+
           const coords = stop.geometry.coordinates;
-          return L.marker([coords[1], coords[0]],
+
+          let stopMarker =  L.marker([coords[1], coords[0]],
                           { icon: busStopIcon })
               .bindTooltip("<div><strong>" + stop.properties.stop_name + "</strong></div><div>ID: " + stop.properties.stop_code + "</div><div>Route: <strong>" + stop.properties.Route + "</strong></div>");
+
+          let routes = stop.properties.Route.split(', ');
+
+          routes.forEach(function (route) {
+            if (stopsByRoutes[route] === undefined) {
+              stopsByRoutes[route] = [];
+            }
+
+            stopsByRoutes[route].push(stopMarker);
+          });
+
+          return stopMarker;
         });
+
+        stopsByRoutes["all"] = stopsMarkers;
 
         var stopsLayer = L.layerGroup(stopsMarkers);
 
@@ -216,7 +226,19 @@ document.onreadystatechange = function() {
         var routesLayer = L.geoJSON(routes, {
           onEachFeature: function (feature, layer) {
             layer.on('mouseover', function() {
-              console.log(feature);
+              // Remove stops and add stops along selectedRoute
+              currentMap.layer[0].remove();
+
+              currentMap.layer[0] = L.layerGroup(stopsByRoutes[feature.properties.route_short_name]);
+              currentMap.layer[0].addTo(madison);
+
+            });
+
+            layer.on('mouseout', function () {
+              currentMap.layer[0].remove();
+
+              currentMap.layer[0] = L.layerGroup(stopsByRoutes["all"]);
+              currentMap.layer[0].addTo(madison);
             })
           }
         });
