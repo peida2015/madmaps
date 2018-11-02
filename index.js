@@ -234,11 +234,13 @@ document.onreadystatechange = function() {
                 // Remove stops
                 currentMap.layer[0].remove();
 
+                // Add selected group of stops to the map
                 currentMap.layer[0] = L.layerGroup(stopsByRoutes[feature.properties.route_short_name]);
                 currentMap.layer[0].addTo(madison);
 
                 selectedRoute = feature.properties.route_short_name;
 
+                // Change styling of selected route to highlight it
                 currentMap.layer[1].setStyle({
                   color: "#AC11B4",
                   weight: 5
@@ -268,9 +270,10 @@ document.onreadystatechange = function() {
 
         currentMap.name = "Transit Commuters";
         currentMap.layer = [stopsLayer, routesLayer];
+
+
       })
     }
-
 
     // Use currentMap to keep track of map layer displayed
     var currentMap = {
@@ -280,6 +283,12 @@ document.onreadystatechange = function() {
 
     // Initialize map based on the default value of the map selection drop down menu
     selectMap(document.getElementsByTagName('select').item(0).value);
+
+    // Draw user location marker
+    madison.locate({ watch: true });
+    madison.on('locationfound', function (loc) {
+      L.marker(loc.latlng).addTo(madison);
+    });
   }
 
 
