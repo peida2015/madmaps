@@ -224,15 +224,31 @@ document.onreadystatechange = function() {
 
         // Draw bus routes
         var routesLayer = L.geoJSON(routes, {
+          style: {
+              color: "#AC11B4",
+              weight: 5
+          },
           onEachFeature: function (feature, layer) {
             layer.on('click', function () {
               if (selectedRoute !== feature.properties.route_short_name) {
+                // Remove stops
                 currentMap.layer[0].remove();
 
                 currentMap.layer[0] = L.layerGroup(stopsByRoutes[feature.properties.route_short_name]);
                 currentMap.layer[0].addTo(madison);
 
                 selectedRoute = feature.properties.route_short_name;
+
+                currentMap.layer[1].setStyle({
+                  color: "#AC11B4",
+                  weight: 5
+                });
+
+                layer.setStyle({
+                  color: "#FBF355",
+                  weight: 8
+                }).bringToFront();
+
               } else {
                 currentMap.layer[0].remove();
 
@@ -240,6 +256,10 @@ document.onreadystatechange = function() {
                 currentMap.layer[0].addTo(madison);
 
                 selectedRoute = null;
+                layer.setStyle({
+                  color: "#AC11B4",
+                  weight: 5
+                })
               }
             })
           }
