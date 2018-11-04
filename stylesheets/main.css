@@ -1,6 +1,57 @@
+#madison {
+  height: 88vh;
+  width: 99vw
+}
+
+/* Configure tooltip in overview map */
 .tip {
   background: lightgreen;
   font-size: 14px;
   opacity: 0;
   border-color: lightgreen
+}
+
+.header {
+  height: 8vh;
+  position: relative;
+}
+
+.title {
+  font-family: "Eczar", serif;
+  font-size: 32px;
+}
+
+.menu-container {
+  height: 100%;
+}
+
+.zero-from-right {
+  right: 0px;
+  position: absolute;
+}
+
+.map-menu {
+  position: absolute;
+  right: 0px;
+	top: 50%;
+	transform: translate(0, -50%);
+}
+
+.dropdown {
+  font-size: 18px;
+}
+
+@media only screen and (max-width: 600px) {
+  .title {
+    font-size: 24px;
+  }
+}
+
+@media only screen and (orientation: landscape) and (max-width: 600px) {
+  .dropdown {
+    font-size: 12px;
+  }
+  .title {
+    font-size: 18px;
+  }
 }

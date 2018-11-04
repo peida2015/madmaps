@@ -11,14 +11,26 @@
       crossorigin="" />
     <link rel="stylesheet" href="./stylesheets/main.css"/>
 
+    <link href="https://fonts.googleapis.com/css?family=Eczar" rel="stylesheet">
   </head>
   <body>
-    Madison
-    <select>
-      <option value="Overview">Overview</option>
-      <option value="Bikers">Bikers</option>
-      <option value="Transit Commuters">Transit Commuters</option>
-    </select>
-    <div id="madison" style="height:600px"></div>
+    <div class="header">
+      <span class="menu-container">
+        <span class="title">
+          MadMaps
+        </span>
+      </span>
+      <span class="menu-container zero-from-right">
+        <span class="map-menu">
+          <select class="dropdown">
+            <option value="Overview">Overview</option>
+            <option value="Bikers">Bikers</option>
+            <option value="Transit Commuters">Transit Commuters</option>
+          </select>
+        </span>
+      </span>
+      <div style="clear: both"></div>
+    </div>
+    <div id="madison"></div>
   </body>
 </html>
