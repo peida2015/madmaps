@@ -19,11 +19,11 @@ document.onreadystatechange = function() {
     var selectMap = function (mapName) {
       console.log(mapName);
       switch(mapName) {
-        case "Overview": overview();
+        case "Neighborhoods": overview();
         break;
         case "Bikers": bikers();
         break;
-        case "Transit Commuters": commuters()
+        case "Transit Commuters": commuters();
         break;
 
       }
@@ -40,11 +40,10 @@ document.onreadystatechange = function() {
 
     var overview = function () {
       var neighborhoodsUrl = "https://opendata.arcgis.com/datasets/66e4a6a80ae64865a81bc8d4464a6417_12.geojson";
-
-      function drawOverviewMap(respText) {
+      function drawNeighborhoodsMap(respText) {
         var neighborhoods = JSON.parse(respText);
 
-        if (currentMap.name !== "Overview" && currentMap.layer !== null) {
+        if (currentMap.name !== "Neighborhoods" && currentMap.layer !== null) {
           currentMap.layer.forEach((layer) => layer.remove());
         }
 
@@ -66,11 +65,11 @@ document.onreadystatechange = function() {
 
         neighborhoodsLayer.addTo(madison);
 
-        currentMap.name = "Overview";
+        currentMap.name = "Neighborhoods";
         currentMap.layer = [neighborhoodsLayer];
       }
 
-      getReq(neighborhoodsUrl, drawOverviewMap);
+      getReq(neighborhoodsUrl, drawNeighborhoodsMap);
 
     };
 
