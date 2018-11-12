@@ -1,6 +1,7 @@
 #madison {
   height: 88vh;
-  width: 99vw
+  width: 100vw;
+  margin-left: -8px
 }
 
 /* Configure tooltip in overview map */
